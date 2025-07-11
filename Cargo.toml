@@ -1,5 +1,5 @@
 [package]
-name = "bunny"
+name = "bunnysql"
 version = "0.1.0"
 edition = "2021"
 authors = ["Albany Siswanto <albanysiswantoo@gmail.com>"]

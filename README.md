@@ -50,12 +50,12 @@ Below are the steps to use **Bunny SQL Assistant** after installation:
 To connect Bunny to a SQLite database, use the following command to set up the connection:
 
 ```bash
-bunny config sqlite://database_file.db
+bunnysql config sqlite://database_file.db
 ```
 
 **Example**:
 ```bash
-bunny config sqlite://test.db
+bunnysql config sqlite://test.db
 ```
 
 > **Note**: Ensure the SQLite database file exists or it will be created automatically at the specified location.
@@ -64,12 +64,12 @@ bunny config sqlite://test.db
 Use the `query` command to translate natural language commands into SQL queries and execute them:
 
 ```bash
-bunny query "Show all products"
+bunnysql query "Show all products"
 ```
 
 **Additional Example**:
 ```bash
-bunny query "Find users older than 25 years"
+bunnysql query "Find users older than 25 years"
 ```
 
 **Output**:
@@ -87,13 +87,13 @@ SELECT * FROM users WHERE age > 25;
 ### 3. View Query History (Optional)
 To view the history of executed queries:
 ```bash
-bunny history
+bunnysql history
 ```
 
 ### 4. Command Help
 To see a list of available commands:
 ```bash
-bunny --help
+bunnysql --help
 ```
 
 ---
