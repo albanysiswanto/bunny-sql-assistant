@@ -165,7 +165,7 @@ If you find a bug or have a suggestion, please open an [issue](https://github.co
 
 ## 📬 Contact
 
-For questions or support, reach out via [GitHub Issues](https://github.com/albanysiswanto/bunny-sql-assistant/issues) or email at [your.email@example.com](mailto:your.email@example.com).
+For questions or support, reach out via [GitHub Issues](https://github.com/albanysiswanto/bunny-sql-assistant/issues) or email at [Albany Siswanto](mailto:albanysiswantoo@gmail.com).
 
 ---
 
