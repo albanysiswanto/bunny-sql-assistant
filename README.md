@@ -1,114 +1,172 @@
 # 🐰 Bunny SQL Assistant
 
-**Bunny SQL Assistant** is an open-source CLI tool built with Rust that enables non-technical users to write and execute SQL queries using natural language. It leverages local LLMs like DeepSeek-Coder via [Ollama](https://ollama.com/) to generate SQL queries from prompts in Indonesian or English.
+**Bunny SQL Assistant** is a command-line interface (CLI) tool that transforms natural language commands (in Indonesian or English) into valid SQL queries and executes them directly on your local database. This project is designed to simplify database interactions using everyday language.
+
+Currently, **SQLite** is the supported database backend.
 
 ---
 
-## ✨ Features
+## ✨ Key Features
 
--  Database configuration (currently supports SQLite)
--  Natural language input (Indonesian or English)
--  Generate and execute SQL directly in the terminal
--  Uses local LLM via Ollama (offline & private)
--  Neatly formatted table output
+- **Natural Language Conversion**: Transform natural language commands into valid SQL queries.
+- **AI Integration**: Powered by the Groq API for intelligent language processing.
+- **Direct Execution**: Run SQL queries directly on your local database.
+- **Secure Configuration**: Store database connection details securely using a configuration file.
 
 ---
 
-## Installation
+## ⚙️ Installation
 
 ### Prerequisites
 
-- Rust >= 1.73
-- SQLite (as example database)
-- [Ollama](https://ollama.com/) with a local model such as `deepseek-coder` installed
+Before you begin, ensure you have installed:
+- [Rust](https://www.rust-lang.org/tools/install) (latest stable version)
+- [SQLite3](https://www.sqlite.org/download.html)
+- An API key from [Groq](https://console.groq.com/keys)
 
-### Clone & Build
+### Installation Steps
+
+1. **Clone the Repository**:
+   ```bash
+   git clone https://github.com/yourusername/bunny-sql-assistant.git
+   cd bunny-sql-assistant
+   ```
+
+2. **Build the Project**:
+   ```bash
+   cargo build --release
+   ```
+
+3. **Verify Installation**:
+   Ensure the `bunny` binary is available in the `./target/release/` directory.
+
+---
+
+## 🚀 Usage
+
+Below are the steps to use **Bunny SQL Assistant** after installation:
+
+### 1. Configure the Database
+To connect Bunny to a SQLite database, use the following command to set up the connection:
 
 ```bash
-git clone https://github.com/yourname/bunny-sql-assistant.git
-cd bunny-sql-assistant
-cargo build --release
-````
-
-### Global Install (Optional)
-
-```bash
-cargo install --path .
+bunny config sqlite://database_file.db
 ```
 
-
-## Usage
-
- 1. Configure the database connection (e.g. SQLite)
-
+**Example**:
 ```bash
 bunny config sqlite://test.db
 ```
 
- 2. Run a query using natural language
+> **Note**: Ensure the SQLite database file exists or it will be created automatically at the specified location.
+
+### 2. Run Queries with Natural Language
+Use the `query` command to translate natural language commands into SQL queries and execute them:
 
 ```bash
-bunny query "Show top 3 products by sales"
+bunny query "Show all products"
 ```
 
-### Sample Output:
-
-```
-📜 Generated SQL:
-SELECT * FROM produk ORDER BY penjualan DESC LIMIT 3;
-
-+----+------------+-----------+
-| id | name       | sales     |
-+----+------------+-----------+
-| 2  | Smartphone | 300       |
-| 8  | Flashdisk  | 250       |
-| 3  | Mouse      | 200       |
-+----+------------+-----------+
-```
-
-
-
-## Run with Docker
-
- 1. Build the Docker image
-
+**Additional Example**:
 ```bash
-docker build -t bunny .
+bunny query "Find users older than 25 years"
 ```
 
- 2. Run a query
+**Output**:
+The query will be translated into SQL, for example:
+```sql
+SELECT * FROM products;
+```
+or
+```sql
+SELECT * FROM users WHERE age > 25;
+```
 
+> **Tip**: Use clear and specific language for the best results. For example, mention table or column names when necessary.
+
+### 3. View Query History (Optional)
+To view the history of executed queries:
 ```bash
-docker run --rm -v $(pwd)/test.db:/app/test.db bunny query "Show all products"
+bunny history
 ```
 
+### 4. Command Help
+To see a list of available commands:
+```bash
+bunny --help
+```
 
+---
 
-## `.env` Configuration
+## 🧠 AI Model Configuration
 
-Create a `.env` file to store default settings:
+Bunny SQL Assistant uses the **Groq API** for natural language processing. To use it, configure the API key and AI model via a `.env` file.
+
+### Creating the `.env` File
+Create a `.env` file in the project directory with the following content:
 
 ```env
-OLLAMA_URL=http://localhost:11434
-OLLAMA_MODEL=deepseek-coder
+GROQ_API_KEY=your_api_key_here
+GROQ_MODEL=your_models
 ```
 
+**Supported Models**:
+- `llama3-8b-8192`
+- `mixtral-8x7b-32768`
+- Other models available at [Groq API](https://console.groq.com/docs/models).
 
-## Roadmap
+---
 
-* Support for PostgreSQL & MySQL
-* SQL validation before execution
-* Query logging
-* Editable query results
-* Plugin system
+## 🧪 Development (Optional)
 
+For developers who want to use **compile-time checking** for SQL queries with SQLx:
 
-## 🤝 Contributing
+1. **Install sqlx-cli**:
+   ```bash
+   cargo install sqlx-cli --no-default-features --features sqlite
+   ```
 
-Pull requests are welcome! Feel free to fork the repo, add features or improvements, and open a PR.
+2. **Generate Query Cache**:
+   Ensure `DATABASE_URL` is set in the `.bunny_db_url` file, then run:
+   ```bash
+   DATABASE_URL=$(cat .bunny_db_url) cargo sqlx prepare
+   ```
+
+---
+
+## ⚠️ Limitations
+
+- **Supported**: SQLite as the database backend.
+- **Not Yet Supported**:
+  - Other databases such as PostgreSQL or MySQL.
+  - Complex queries with cross-table joins automatically.
 
 ---
 
 ## 📄 License
 
-MIT License © 2025 - Albany Siswanto
+Licensed under the [MIT License](LICENSE) © 2025 [Your Name or Organization].
+
+---
+
+## 🐇 Contribution
+
+We warmly welcome contributions! Please follow these steps to contribute:
+
+1. Fork this repository.
+2. Create a new branch (`git checkout -b your-feature`).
+3. Make changes and commit (`git commit -m "Add feature X"`).
+4. Push to your branch (`git push origin your-feature`).
+5. Create a Pull Request on GitHub.
+
+If you find a bug or have a suggestion, please open an [issue](https://github.com/albanysiswanto/bunny-sql-assistant/issues).
+
+---
+
+## 📬 Contact
+
+For questions or support, reach out via [GitHub Issues](https://github.com/albanysiswanto/bunny-sql-assistant/issues) or email at [your.email@example.com](mailto:your.email@example.com).
+
+---
+
+Thank you for using **Bunny SQL Assistant**! 🐰

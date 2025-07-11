@@ -1,75 +1,108 @@
 use reqwest::Client;
-use serde::Deserialize;
-use sqlx::Row;
-use sqlx::sqlite::SqlitePool;
+use serde::{Deserialize, Serialize};
+use sqlx::sqlite::SqlitePoolOptions;
+use std::env;
 
-use crate::config::load_db_url;
-
-#[derive(Debug, Deserialize)]
-struct OllamaResponse {
-    response: String,
+#[derive(Serialize)]
+struct GroqRequest {
+    model: String,
+    messages: Vec<Message>,
 }
 
-pub async fn get_sqlite_schema(db_url: &str) -> Result<String, Box<dyn std::error::Error>> {
-    let pool = SqlitePool::connect(db_url).await?;
+#[derive(Serialize)]
+struct Message {
+    role: String,
+    content: String,
+}
 
-    let rows = sqlx::query("SELECT sql FROM sqlite_master WHERE type='table';")
+#[derive(Deserialize)]
+struct GroqResponse {
+    choices: Vec<Choice>,
+}
+
+#[derive(Deserialize)]
+struct Choice {
+    message: MessageContent,
+}
+
+#[derive(Deserialize)]
+struct MessageContent {
+    content: String,
+}
+
+async fn extract_schema(db_url: &str) -> Result<String, Box<dyn std::error::Error>> {
+    let pool = SqlitePoolOptions::new().connect(db_url).await?;
+
+    let rows = sqlx::query!("SELECT name FROM sqlite_master WHERE type='table'")
         .fetch_all(&pool)
         .await?;
 
-    let mut schema = String::new();
+    let mut schema_statements = Vec::new();
+
     for row in rows {
-        let ddl: String = row.try_get(0)?;
-        schema.push_str(&ddl);
-        schema.push_str(";\n");
+        if let Some(name) = row.name {
+            let stmt_row = sqlx::query_scalar::<_, String>(&format!(
+                "SELECT sql FROM sqlite_master WHERE name='{}';",
+                name
+            ))
+            .fetch_one(&pool)
+            .await?;
+
+            schema_statements.push(stmt_row);
+        }
     }
 
-    Ok(schema)
+    Ok(schema_statements.join("\n"))
 }
 
 pub async fn generate_sql(prompt: &str) -> Result<String, Box<dyn std::error::Error>> {
-    let client = Client::new();
+    let api_key = env::var("GROQ_API_KEY")?;
+    let model = env::var("GROQ_MODEL")?;
 
-    let db_url = load_db_url()?;
-    let schema = get_sqlite_schema(&db_url).await.unwrap_or_default();
+    let db_url = crate::config::load_db_url()?;
 
-    let full_prompt = format!(
-        "Gunakan skema tabel berikut:\n{}\n\nUbah permintaan berikut menjadi query SQL yang valid dan cocok dengan skema di atas. Jawab dengan SQL murni tanpa penjelasan:\n\"{}\"",
-        schema, prompt
+    let schema = extract_schema(&db_url).await?;
+
+    let system_prompt = format!(
+        "Gunakan skema database berikut untuk menjawab pertanyaan. Berikan hanya SQL valid tanpa komentar atau penjelasan:\n\n{}",
+        schema
     );
-    // println!("📤 Prompt sent to AI:\n{}\n", full_prompt);
 
-    let response = client
-        .post("http://localhost:11434/api/generate")
-        .json(&serde_json::json!({
-            "model": "deepseek-coder",
-            "prompt": full_prompt,
-            "stream": false,
-            "stop": ["\n\n", "--", "#"]
-        }))
+    let messages = vec![
+        Message {
+            role: "system".into(),
+            content: system_prompt,
+        },
+        Message {
+            role: "user".into(),
+            content: prompt.into(),
+        },
+    ];
+
+    let body = GroqRequest { model, messages };
+
+    let client = Client::new();
+    let res = client
+        .post("https://api.groq.com/openai/v1/chat/completions")
+        .bearer_auth(api_key)
+        .json(&body)
         .send()
         .await?;
 
-    if !response.status().is_success() {
-        let err_text = response.text().await?;
-        return Err(format!("Gagal dari Ollama: {}", err_text).into());
+    let status = res.status();
+    let raw_text = res.text().await?;
+    // println!("DEBUG: HTTP Status = {status}");
+    // println!("DEBUG: Raw response = {raw_text}");
+
+    if !status.is_success() {
+        return Err(format!("Groq API error: {}", raw_text).into());
     }
 
-    let data: OllamaResponse = response.json().await?;
-    let raw = data.response.trim();
-    // println!("🔍 Raw response from AI:\n{}\n", raw);
+    let data: GroqResponse = serde_json::from_str(&raw_text)?;
+    let sql = data
+        .choices
+        .first()
+        .map(|c| c.message.content.trim().to_string());
 
-    let cleaned_line = raw.lines().map(str::trim).find(|line| {
-        let upper = line.to_uppercase();
-        upper.starts_with("SELECT")
-            || upper.starts_with("WITH")
-            || upper.starts_with("INSERT")
-            || upper.starts_with("UPDATE")
-            || upper.starts_with("DELETE")
-    });
-
-    match cleaned_line {
-        Some(sql_line) => Ok(sql_line.to_string()),
-        None => Err("❌ The response from the AI does not contain valid SQL.".into()),
-    }
+    sql.ok_or("No response from Groq".into())
 }
