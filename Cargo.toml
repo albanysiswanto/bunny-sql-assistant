@@ -1,7 +1,18 @@
 [package]
 name = "bunny-sql-assistant"
-version = "0.1.0"
-edition = "2024"
+version = "0.0.1"
+edition = "2021"
+authors = ["Albany Siswanto <albanysiswantoo@gmail.com>"]
+description = "🐰 Bunny SQL Assistant is a CLI tool that converts natural language into SQL using local LLMs like Ollama."
+license = "MIT"
+repository = "https://github.com/albanysiswanto/bunny-sql-assistant.git"
+readme = "README.md"
+keywords = ["sql", "llm", "cli", "assistant", "ollama"]
+categories = ["command-line-utilities", "database"]
+
+# Optional but recommended
+homepage = "https://github.com/albanysiswanto/bunny-sql-assistant.git"
+
 
 [dependencies]
 clap = { version = "4.5.41", features = ["derive"] }
