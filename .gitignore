@@ -1,1 +1,5 @@
 /target
+.env
+.bunny_db_url
+test.db
+Makefile
