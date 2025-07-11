@@ -6,15 +6,15 @@
 
 ## ✨ Features
 
-- 🔌 **Database configuration** (currently supports SQLite)
-- 💬 **Natural language input** (Indonesian or English)
-- 📜 **Generate and execute SQL directly in the terminal**
-- 🧠 **Uses local LLM via Ollama** (offline & private)
-- 📊 **Neatly formatted table output**
+-  Database configuration (currently supports SQLite)
+-  Natural language input (Indonesian or English)
+-  Generate and execute SQL directly in the terminal
+-  Uses local LLM via Ollama (offline & private)
+-  Neatly formatted table output
 
 ---
 
-## 📦 Installation
+## Installation
 
 ### Prerequisites
 
@@ -36,17 +36,16 @@ cargo build --release
 cargo install --path .
 ```
 
----
 
-## 🚀 Usage
+## Usage
 
-### 1. Configure the database connection (e.g. SQLite)
+ 1. Configure the database connection (e.g. SQLite)
 
 ```bash
 bunny config sqlite://test.db
 ```
 
-### 2. Run a query using natural language
+ 2. Run a query using natural language
 
 ```bash
 bunny query "Show top 3 products by sales"
@@ -67,25 +66,25 @@ SELECT * FROM produk ORDER BY penjualan DESC LIMIT 3;
 +----+------------+-----------+
 ```
 
----
 
-## 🐳 Run with Docker
 
-### 1. Build the Docker image
+## Run with Docker
+
+ 1. Build the Docker image
 
 ```bash
 docker build -t bunny .
 ```
 
-### 2. Run a query
+ 2. Run a query
 
 ```bash
 docker run --rm -v $(pwd)/test.db:/app/test.db bunny query "Show all products"
 ```
 
----
 
-## ⚙️ `.env` Configuration
+
+## `.env` Configuration
 
 Create a `.env` file to store default settings:
 
@@ -94,21 +93,8 @@ OLLAMA_URL=http://localhost:11434
 OLLAMA_MODEL=deepseek-coder
 ```
 
----
 
-## 🛠 Technology Stack
-
-* Language: **Rust**
-* Async Runtime: `tokio`
-* CLI Parser: `clap`
-* Database Layer: `sqlx`
-* Table Renderer: `tabled`
-* HTTP Client: `reqwest`
-* Local LLM API: `Ollama`
-
----
-
-## 🌱 Roadmap
+## Roadmap
 
 * Support for PostgreSQL & MySQL
 * SQL validation before execution
@@ -116,7 +102,6 @@ OLLAMA_MODEL=deepseek-coder
 * Editable query results
 * Plugin system
 
----
 
 ## 🤝 Contributing
 
