@@ -49,20 +49,20 @@ Before you begin, ensure you have installed:
 
 #### For SQLite:
 ```bash
-bunnysql config --db-type sqlite://database_file.db
+bunnysql config --db-type sqlite sqlite://database_file.db
 ```
 **Example**:
 ```bash
-bunnysql config --db-type sqlite://test.db
+bunnysql config --db-type sqlite sqlite://test.db
 ```
 
 #### For PostgreSQL:
 ```bash
-bunnysql config --db-type postgres://username:password@localhost:5432/database_name
+bunnysql config --db-type postgres postgres://username:password@localhost:5432/database_name
 ```
 **Example**:
 ```bash
-bunnysql config --db-type postgres://postgres:bunny@localhost:5432/mydb
+bunnysql config --db-type postgres postgres://postgres:bunny@localhost:5432/mydb
 ```
 
 > **Note**: Database files will be created automatically for SQLite. For PostgreSQL, ensure the database exists.

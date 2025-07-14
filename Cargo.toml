@@ -1,6 +1,6 @@
 [package]
 name = "bunnysql"
-version = "0.2.0"
+version = "0.2.1"
 edition = "2024"
 authors = ["Albany Siswanto <albanysiswantoo@gmail.com>"]
 description = "🐰 Bunny SQL Assistant is a CLI tool that converts natural language into SQL."
