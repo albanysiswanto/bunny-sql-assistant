@@ -2,16 +2,16 @@
 
 **Bunny SQL Assistant** is a command-line interface (CLI) tool that transforms natural language commands (in Indonesian or English) into valid SQL queries and executes them directly on your local database. This project is designed to simplify database interactions using everyday language.
 
-Currently, **SQLite** is the supported database backend.
-
 ---
 
 ## ✨ Key Features
 
-- **Natural Language Conversion**: Transform natural language commands into valid SQL queries.
-- **AI Integration**: Powered by the Groq API for intelligent language processing.
-- **Direct Execution**: Run SQL queries directly on your local database.
-- **Secure Configuration**: Store database connection details securely using a configuration file.
+- **Natural Language Conversion**: Transform natural language commands into valid SQL queries
+- **Multi-Database Support**: Works with both SQLite and PostgreSQL
+- **AI Integration**: Powered by the Groq API for intelligent language processing
+- **Direct Execution**: Run SQL queries directly on your local database
+- **Secure Configuration**: Store database connection details securely using configuration files
+- **Rich Output Formatting**: Beautifully formatted table outputs for query results
 
 ---
 
@@ -21,7 +21,8 @@ Currently, **SQLite** is the supported database backend.
 
 Before you begin, ensure you have installed:
 - [Rust](https://www.rust-lang.org/tools/install) (latest stable version)
-- [SQLite3](https://www.sqlite.org/download.html)
+- [SQLite3](https://www.sqlite.org/download.html) (for SQLite support)
+- [PostgreSQL](https://www.postgresql.org/download/) (for PostgreSQL support)
 - An API key from [Groq](https://console.groq.com/keys)
 
 ### Installation Steps
@@ -44,54 +45,48 @@ Before you begin, ensure you have installed:
 
 ## 🚀 Usage
 
-Below are the steps to use **Bunny SQL Assistant** after installation:
+### 1. Configure the Database Connection
 
-### 1. Configure the Database
-To connect Bunny to a SQLite database, use the following command to set up the connection:
-
+#### For SQLite:
 ```bash
-bunnysql config sqlite://database_file.db
+bunnysql config --db-type sqlite://database_file.db
 ```
-
 **Example**:
 ```bash
-bunnysql config sqlite://test.db
+bunnysql config --db-type sqlite://test.db
 ```
 
-> **Note**: Ensure the SQLite database file exists or it will be created automatically at the specified location.
+#### For PostgreSQL:
+```bash
+bunnysql config --db-type postgres://username:password@localhost:5432/database_name
+```
+**Example**:
+```bash
+bunnysql config --db-type postgres://postgres:bunny@localhost:5432/mydb
+```
+
+> **Note**: Database files will be created automatically for SQLite. For PostgreSQL, ensure the database exists.
 
 ### 2. Run Queries with Natural Language
-Use the `query` command to translate natural language commands into SQL queries and execute them:
 
+Basic query format:
 ```bash
-bunnysql query "Show all products"
+bunnysql query "Your natural language query"
 ```
 
-**Additional Example**:
+**SQLite Examples**:
 ```bash
+bunnysql query "Show all products"
 bunnysql query "Find users older than 25 years"
 ```
 
-**Output**:
-The query will be translated into SQL, for example:
-```sql
-SELECT * FROM products;
-```
-or
-```sql
-SELECT * FROM users WHERE age > 25;
-```
-
-> **Tip**: Use clear and specific language for the best results. For example, mention table or column names when necessary.
-
-### 3. View Query History (Optional)
-To view the history of executed queries:
+**PostgreSQL Examples**:
 ```bash
-bunnysql history
+bunnysql query "Show top 5 customers by total purchases"
+bunnysql query "List all orders from last month"
 ```
 
-### 4. Command Help
-To see a list of available commands:
+### 3. Get Help
 ```bash
 bunnysql --help
 ```
@@ -100,72 +95,68 @@ bunnysql --help
 
 ## 🧠 AI Model Configuration
 
-Bunny SQL Assistant uses the **Groq API** for natural language processing. To use it, configure the API key and AI model via a `.env` file.
-
-### Creating the `.env` File
-Create a `.env` file in the project directory with the following content:
+Configure the Groq API by creating a `.env` file:
 
 ```env
 GROQ_API_KEY=your_api_key_here
-GROQ_MODEL=your_models
+GROQ_MODEL=mixtral-8x7b-32768  # or other supported models
 ```
 
 **Supported Models**:
 - `llama3-8b-8192`
 - `mixtral-8x7b-32768`
-- Other models available at [Groq API](https://console.groq.com/docs/models).
+- Other models available at [Groq API](https://console.groq.com/docs/models)
 
 ---
 
-## 🧪 Development (Optional)
+## 🧪 Development
 
-For developers who want to use **compile-time checking** for SQL queries with SQLx:
+### For SQLite Development:
+```bash
+cargo install sqlx-cli --no-default-features --features sqlite
+DATABASE_URL=sqlite://test.db cargo sqlx prepare
+```
 
-1. **Install sqlx-cli**:
-   ```bash
-   cargo install sqlx-cli --no-default-features --features sqlite
-   ```
-
-2. **Generate Query Cache**:
-   Ensure `DATABASE_URL` is set in the `.bunny_db_url` file, then run:
-   ```bash
-   DATABASE_URL=$(cat .bunny_db_url) cargo sqlx prepare
-   ```
+### For PostgreSQL Development:
+```bash
+cargo install sqlx-cli --no-default-features --features postgres
+DATABASE_URL=postgres://user:pass@localhost:5432/db cargo sqlx prepare
+```
 
 ---
 
 ## ⚠️ Limitations
 
-- **Supported**: SQLite as the database backend.
-- **Not Yet Supported**:
-  - Other databases such as PostgreSQL or MySQL.
-  - Complex queries with cross-table joins automatically.
+- **Supported Databases**:
+  - SQLite
+  - PostgreSQL
+- **Query Complexity**: Very complex queries may require manual refinement
+- **Connection Limits**: Ensure your PostgreSQL server allows connections
 
 ---
 
 ## 📄 License
 
-Licensed under the [MIT License](LICENSE) © 2025 [Your Name or Organization].
+MIT License © 2025 Albany Siswanto
 
 ---
 
 ## 🐇 Contribution
 
-We warmly welcome contributions! Please follow these steps to contribute:
+We welcome contributions! Please:
+1. Fork the repository
+2. Create a feature branch
+3. Submit a pull request
 
-1. Fork this repository.
-2. Create a new branch (`git checkout -b your-feature`).
-3. Make changes and commit (`git commit -m "Add feature X"`).
-4. Push to your branch (`git push origin your-feature`).
-5. Create a Pull Request on GitHub.
-
-If you find a bug or have a suggestion, please open an [issue](https://github.com/albanysiswanto/bunny-sql-assistant/issues).
+Report issues on our [GitHub Issues](https://github.com/albanysiswanto/bunny-sql-assistant/issues) page.
 
 ---
 
 ## 📬 Contact
 
-For questions or support, reach out via [GitHub Issues](https://github.com/albanysiswanto/bunny-sql-assistant/issues) or email at [Albany Siswanto](mailto:albanysiswantoo@gmail.com).
+For questions or support:
+- [GitHub Issues](https://github.com/albanysiswanto/bunny-sql-assistant/issues)
+- Email: [albanysiswantoo@gmail.com](mailto:albanysiswantoo@gmail.com)
 
 ---
 

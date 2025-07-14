@@ -2,7 +2,7 @@ mod ai;
 mod config;
 mod db;
 
-use clap::{Parser, Subcommand};
+use clap::{Args, Parser, Subcommand};
 use colored::*;
 use indicatif::{ProgressBar, ProgressStyle};
 use std::time::Duration;
@@ -16,14 +16,21 @@ struct Cli {
 
 #[derive(Subcommand)]
 enum Commands {
-    Config {
-        #[arg(help = "Database URL (contoh: postgres://user:pass@localhost/db)")]
-        url: String,
-    },
+    Config(ConfigArgs),
+
     Query {
         #[arg(help = "Prompt natural language (ID/EN)")]
         prompt: String,
     },
+}
+
+#[derive(Args)]
+struct ConfigArgs {
+    #[arg(long, help = "Tipe database: sqlite atau postgres")]
+    db_type: String,
+
+    #[arg(help = "Database URL (contoh: postgres://user:pass@localhost/db)")]
+    url: String,
 }
 
 #[tokio::main]
@@ -33,9 +40,9 @@ async fn main() {
     let cli = Cli::parse();
 
     match &cli.command {
-        Commands::Config { url } => {
-            config::save_db_url(url);
-            println!("✅ Database connection saved!");
+        Commands::Config(args) => {
+            config::save_db_config(&args.db_type, &args.url);
+            println!("✅ Database configuration saved!");
         }
 
         Commands::Query { prompt } => {
@@ -60,9 +67,14 @@ async fn main() {
                     println!("{}", sql.trim().cyan());
                     println!("{}\n", border.cyan());
 
-                    match config::load_db_url() {
-                        Ok(db_url) => {
-                            if let Err(e) = db::execute_sql_and_print(&sql, &db_url).await {
+                    match config::load_db_config() {
+                        Ok(conf) => {
+                            // println!("DEBUG: DB Type = {}", conf.db_type);
+                            // println!("DEBUG: DB URL  = {}", conf.url);
+
+                            if let Err(e) =
+                                db::execute_sql_and_print(&sql, &conf.url, &conf.db_type).await
+                            {
                                 eprintln!("❌ Failed to run the query: {}", e);
                             }
                         }

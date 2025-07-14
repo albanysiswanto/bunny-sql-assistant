@@ -1,5 +1,5 @@
 /target
 .env
-.bunny_db_url
+.bunny_db_config
 test.db
 Makefile
