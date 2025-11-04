@@ -24,7 +24,7 @@ jobs:
           name: output-linux
           path: output-linux-ci.txt
 
-  windows-check:
+    windows-check:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
@@ -39,12 +39,22 @@ jobs:
       - name: Build (release) on Windows
         run: cargo build --release
 
-      - name: Run Windows binary and capture output
+      - name: List target/release (debug)
+        shell: pwsh
         run: |
-          .\target\release\bunny-sql-assistant.exe --version > output-windows-ci.txt
-          type output-windows-ci.txt
+          Write-Host "Contents of target\release"
+          Get-ChildItem .\target\release\ -Force | Format-Table Name,Length
+
+      - name: Run Windows binary and capture output
+        shell: pwsh
+        run: |
+          # ganti nama exe sesuai hasil list di atas (kemungkinan bunnysql.exe)
+          .\target\release\bunnysql.exe --version > output-windows-ci.txt
+          Get-Content output-windows-ci.txt
+
       - name: Upload windows output
         uses: actions/upload-artifact@v4
         with:
           name: output-windows
           path: output-windows-ci.txt
+
