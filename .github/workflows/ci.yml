@@ -24,7 +24,7 @@ jobs:
           name: output-linux
           path: output-linux-ci.txt
 
-    windows-check:
+  windows-check:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
@@ -57,4 +57,3 @@ jobs:
         with:
           name: output-windows
           path: output-windows-ci.txt
-
