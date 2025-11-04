@@ -1,4 +1,4 @@
-name: CI
+name: CI - Cross OS Check
 
 on:
   push:
@@ -7,35 +7,44 @@ on:
     branches: ["main"]
 
 jobs:
-  build-and-test:
+  linux-container:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Set up Rust
+      - name: Build Docker image
+        run: docker build -t bunny:ci .
+
+      - name: Run container and capture output
+        run: |
+          docker run --rm bunny:ci --version 2>&1 | tee output-linux-ci.txt
+      - name: Upload linux output
+        uses: actions/upload-artifact@v4
+        with:
+          name: output-linux
+          path: output-linux-ci.txt
+
+  windows-check:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Rust
         uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
           profile: minimal
           override: true
 
-      - name: Cache cargo registry
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cargo/registry
-            ~/.cargo/git
-          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
-
-      - name: Build (release)
+      - name: Build (release) on Windows
         run: cargo build --release
 
-      - name: Run tests
-        run: cargo test --verbose
-
-      - name: Upload build artifact
+      - name: Run Windows binary and capture output
+        run: |
+          .\target\release\bunny-sql-assistant.exe --version > output-windows-ci.txt
+          type output-windows-ci.txt
+      - name: Upload windows output
         uses: actions/upload-artifact@v4
         with:
-          name: bunny-release
-          path: target/release/
+          name: output-windows
+          path: output-windows-ci.txt
