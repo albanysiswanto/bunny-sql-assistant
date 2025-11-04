@@ -17,7 +17,8 @@ jobs:
 
       - name: Run container and capture output
         run: |
-          docker run --rm bunny:ci --version 2>&1 | tee output-linux-ci.txt
+          docker run --rm bunny:ci --help 2>&1 | tee output-linux-ci.txt
+
       - name: Upload linux output
         uses: actions/upload-artifact@v4
         with:
@@ -48,8 +49,8 @@ jobs:
       - name: Run Windows binary and capture output
         shell: pwsh
         run: |
-          # ganti nama exe sesuai hasil list di atas (kemungkinan bunnysql.exe)
-          .\target\release\bunnysql.exe --version > output-windows-ci.txt
+          # gunakan --help (lebih aman daripada --version)
+          .\target\release\bunnysql.exe --help > output-windows-ci.txt
           Get-Content output-windows-ci.txt
 
       - name: Upload windows output
